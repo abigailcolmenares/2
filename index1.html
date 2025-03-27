@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('https://i.postimg.cc/yNFPFLpF/istockphoto-1428737062-612x612.jpg'); /* Fondo */
+            background-size: cover;
+            background-position: center;
+        }
+        .calculator-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px; /* Espaciado entre la calculadora y la imagen del gato */
+        }
+        .calculator {
+            background-color: #424242;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            max-width: 95%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .history-display {
+            width: 100%;
+            height: 60px;
+            font-size: 12px;
+            text-align: left;
+            padding: 5px;
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            background-color: #333333;
+            color: #ffffff;
+            overflow-y: auto;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .history-display.on {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .main-calculator {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .display {
+            width: 100%;
+            height: 45px;
+            font-size: 20px;
+            text-align: right;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            background-color: #333333;
+            color: #ffffff;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .display.on {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .button {
+            width: 100%;
+            height: 40px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #e0e0e0;
+            color: #000000;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button:hover {
+            background-color: #d1d1d1;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button.operator {
+            background-color: #c62828;
+            color: #ffffff;
+        }
+        .button.operator:hover {
+            background-color: #9b1f1f;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button.equal {
+            background-color: #f5f5f5;
+            color: #000000;
+            grid-column: span 2;
+        }
+        .button.equal:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button.clear {
+            background-color: #c62828;
+            color: #ffffff;
+        }
+        .button.clear:hover {
+            background-color: #9b1f1f;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button.power {
+            background-color: #b77c00;
+            color: #ffffff;
+        }
+        .button.power:hover {
+            background-color: #8e6400;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button.backspace {
+            background-color: #ff9800;
+            color: #ffffff;
+        }
+        .button.backspace:hover {
+            background-color: #e68a00;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        .cat-image-container {
+            position: relative;
+        }
+        .cat-image {
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Calculadora -->
+        <div class="calculator">
+            <!-- Pantalla de historial -->
+            <div class="history-display" id="historyDisplay"></div>
+            <!-- Calculadora principal -->
+            <div class="main-calculator">
+                <input type="text" class="display" id="display" disabled>
+                <div class="buttons">
+                    <!-- Primera fila: Botones de control -->
+                    <button class="button power" onclick="togglePower()">On/Off</button>
+                    <button class="button clear" onclick="clearDisplay()">C</button>
+                    <button class="button operator" onclick="appendOperator('(')">(</button>
+                    <button class="button operator" onclick="appendOperator(')')">)</button>
+                    <!-- Segunda fila: Funciones científicas y operadores -->
+                    <button class="button operator" onclick="appendFunction('sin')">sin</button>
+                    <button class="button operator" onclick="appendFunction('cos')">cos</button>
+                    <button class="button operator" onclick="appendFunction('tan')">tan</button>
+                    <button class="button operator" onclick="appendOperator('/')">/</button>
+                    <!-- Tercera fila: Números del 7 al 9 y operador * -->
+                    <button class="button" onclick="appendNumber('7')">7</button>
+                    <button class="button" onclick="appendNumber('8')">8</button>
+                    <button class="button" onclick="appendNumber('9')">9</button>
+                    <button class="button operator" onclick="appendOperator('*')">*</button>
+                    <!-- Cuarta fila: Números del 4 al 6 y operador - -->
+                    <button class="button" onclick="appendNumber('4')">4</button>
+                    <button class="button" onclick="appendNumber('5')">5</button>
+                    <button class="button" onclick="appendNumber('6')">6</button>
+                    <button class="button operator" onclick="appendOperator('-')">-</button>
+                    <!-- Quinta fila: Números del 1 al 3 y operador + -->
+                    <button class="button" onclick="appendNumber('1')">1</button>
+                    <button class="button" onclick="appendNumber('2')">2</button>
+                    <button class="button" onclick="appendNumber('3')">3</button>
+                    <button class="button operator" onclick="appendOperator('+')" style="grid-row: span 2;">+</button>
+                    <!-- Sexta fila: 0, punto, retroceso e igual -->
+                    <button class="button" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+                    <button class="button backspace" onclick="backspace()">←</button>
+                    <button class="button" onclick="appendNumber('.')">.</button>
+                    <button class="button equal" onclick="calculateResult()">=</button>
+                    <!-- Séptima fila: Botones adicionales -->
+                    <button class="button operator" onclick="appendOperator('^')" style="grid-column: 4;">^</button>
+                    <button class="button operator" onclick="appendFunction('sqrt')">√</button>
+                    <button class="button cat" onclick="showCatImage()">🐱</button>
+                </div>
+            </div>
+        </div>
+        <!-- Contenedor de la imagen del gato -->
+        <div class="cat-image-container">
+            <img src="https://i.postimg.cc/9QhH3Sdw/75552-ngsversion-1422285553360.jpg" alt="Gato" class="cat-image" id="catImage">
+        </div>
+    </div>
+    <script>
+        let display = document.getElementById('display');
+        let historyDisplay = document.getElementById('historyDisplay');
+        let catImage = document.getElementById('catImage');
+        let isPoweredOn = false;
+        let history = [];
+        function togglePower() {
+            isPoweredOn = !isPoweredOn;
+            if (isPoweredOn) {
+                display.classList.add('on');
+                historyDisplay.classList.add('on');
+                display.value = '';
+                historyDisplay.innerHTML = '';
+                history = [];
+            } else {
+                display.classList.remove('on');
+                historyDisplay.classList.remove('on');
+                display.value = '';
+                historyDisplay.innerHTML = '';
+                history = [];
+            }
+        }
+        function appendNumber(value) {
+            if (!isPoweredOn) return;
+            display.value += value;
+        }
+        function appendOperator(operator) {
+            if (!isPoweredOn) return;
+            if (operator === '^') {
+                display.value += '**';
+            } else {
+                display.value += operator;
+            }
+        }
+        function appendFunction(func) {
+            if (!isPoweredOn) return;
+            if (func === 'sqrt') {
+                display.value = `Math.sqrt(${display.value})`;
+            } else {
+                display.value += `${func}(`;
+            }
+        }
+        function clearDisplay() {
+            if (!isPoweredOn) return;
+            display.value = '';
+        }
+        function backspace() {
+            if (!isPoweredOn) return;
+            display.value = display.value.slice(0, -1);
+        }
+        function calculateResult() {
+            if (!isPoweredOn) return;
+            try {
+                const result = eval(display.value);
+                history.push(`${display.value} = ${result}`);
+                historyDisplay.innerHTML = history.join('<br>');
+                display.value = result;
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+        function showCatImage() {
+            if (!isPoweredOn) return;
+            catImage.style.display = 'block';
+            setTimeout(() => {
+                catImage.style.display = 'none';
+            }, 2000); // Duración reducida a 2 segundos
+        }
+    </script>
+</body>
+</html>
